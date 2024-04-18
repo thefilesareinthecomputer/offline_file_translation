@@ -1,2 +1,8 @@
+__pycache__/
 _archive/
+_tests/
+build/
+dist/
+images/
 venv_offline_file_translation/
+main.spec

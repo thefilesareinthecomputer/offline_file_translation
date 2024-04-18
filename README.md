@@ -13,7 +13,7 @@ Convenience: Easy to set up and run, making translations hassle-free.
 # Specifications
 Language Support: Dependent on available Helsinki-NLP/OPUS-MT models.
 File Format Support: Text (.txt), Comma-Separated Values (.csv), and Excel (.xlsx).
-Dependencies: Python, pandas, torch, transformers, tqdm, openpyxl.
+Dependencies: Python, pandas, torch, transformers, tqdm, openpyxl, pyinstaller.
 
 # Installation
 Ensure Python is installed, then run:

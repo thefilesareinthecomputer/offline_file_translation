@@ -1,6 +1,6 @@
 '''
 functional
-will need to be extended for docx pfd and rtf files
+will need to be extended for docx, pdf, etc.
 '''
 
 import os
@@ -64,7 +64,7 @@ def custom_translator(text, model, tokenizer, device):
         
     return ' '.join(translated_text_batches)
 
-def translate_dataframe(df, model, tokenizer, device, progress_bar):
+def translate_dataframe(app, df, model, tokenizer, device, progress_bar):
     total_size = df.size
     progress_bar["maximum"] = total_size
     translated_df = df.copy()
@@ -75,14 +75,14 @@ def translate_dataframe(df, model, tokenizer, device, progress_bar):
             if pd.isna(text):
                 translated_texts.append(text)
             else:
-                translated_texts.append(custom_translator(str(text), model, tokenizer, device))
+                translated_texts.append(custom_translator(text, model, tokenizer, device))
             progress += 1
             progress_bar["value"] = progress
-            app.update()
+            app.update()  # This now works because `app` is passed to the function
         translated_df[col] = translated_texts
     return translated_df
 
-def translate_file(filepath, source_lang, target_lang):
+def translate_file(app, filepath, source_lang, target_lang):
     model, tokenizer, device = load_model(source_lang, target_lang)
     file_extension = os.path.splitext(filepath)[1]
     
@@ -98,7 +98,7 @@ def translate_file(filepath, source_lang, target_lang):
 
         progress_bar = ttk.Progressbar(app, orient="horizontal", length=300, mode="determinate")
         progress_bar.pack(padx=10, pady=20)
-        translated_df = translate_dataframe(df, model, tokenizer, device, progress_bar)
+        translated_df = translate_dataframe(app, df, model, tokenizer, device, progress_bar)  # Pass `app` here
         
         base_name = os.path.splitext(filepath)[0]
         translated_file_path = f"{base_name}[{source_lang}_{target_lang}]{file_extension}"
@@ -116,55 +116,57 @@ def translate_file(filepath, source_lang, target_lang):
 
 # ---------- GUI Code ---------- #
 
-app = tk.Tk()
-app.title("Language Translator")
+def run_app():
+    app = tk.Tk()
+    app.title("Language Translator")
 
-# Variables to store the selected languages
-source_vars = [tk.StringVar() for _ in LANGUAGE_OPTIONS]
-target_vars = [tk.StringVar() for _ in LANGUAGE_OPTIONS]
+    # Variables to store the selected languages
+    source_vars = [tk.StringVar() for _ in LANGUAGE_OPTIONS]
+    target_vars = [tk.StringVar() for _ in LANGUAGE_OPTIONS]
 
-# Create source language selection checkboxes
-tk.Label(app, text="Select Source Language:").pack()
-for lang, var in zip(LANGUAGE_OPTIONS, source_vars):
-    chk = ttk.Checkbutton(app, text=lang, variable=var, onvalue=lang, offvalue='', command=lambda: update_button_state())
-    chk.pack(anchor=tk.W)
+    # Create source language selection checkboxes
+    tk.Label(app, text="Select Source Language:").pack()
+    for lang, var in zip(LANGUAGE_OPTIONS, source_vars):
+        chk = ttk.Checkbutton(app, text=lang, variable=var, onvalue=lang, offvalue='', command=lambda: update_button_state())
+        chk.pack(anchor=tk.W)
 
-# Create target language selection checkboxes
-tk.Label(app, text="Select Target Language:").pack()
-for lang, var in zip(LANGUAGE_OPTIONS, target_vars):
-    chk = ttk.Checkbutton(app, text=lang, variable=var, onvalue=lang, offvalue='', command=lambda: update_button_state())
-    chk.pack(anchor=tk.W)
+    # Create target language selection checkboxes
+    tk.Label(app, text="Select Target Language:").pack()
+    for lang, var in zip(LANGUAGE_OPTIONS, target_vars):
+        chk = ttk.Checkbutton(app, text=lang, variable=var, onvalue=lang, offvalue='', command=lambda: update_button_state())
+        chk.pack(anchor=tk.W)
 
-# Button to proceed with file selection
-select_button = tk.Button(app, text="Select File to Translate", state='disabled')
-select_button.pack(padx=10, pady=10)
+    # Button to proceed with file selection
+    select_button = tk.Button(app, text="Select File to Translate", state='disabled')
+    select_button.pack(padx=10, pady=10)
 
-# Function to update the state of the select button
-def update_button_state():
-    selected_source = [var.get() for var in source_vars if var.get()]
-    selected_target = [var.get() for var in target_vars if var.get()]
-    if selected_source and selected_target and selected_source != selected_target:
-        select_button.config(state='normal', command=select_file)
-    else:
-        select_button.config(state='disabled')
-
-# Function to handle file selection and translation
-def select_file():
-    """Handle file selection and initiate translation if a file is selected."""
-    filepath = filedialog.askopenfilename()
-    if filepath:
-        selected_source_lang = next((var.get() for var in source_vars if var.get()), None)
-        selected_target_lang = next((var.get() for var in target_vars if var.get()), None)
-        
-        if selected_source_lang and selected_target_lang and selected_source_lang != selected_target_lang:
-            # Load model and start translation
-            model, tokenizer, device = load_model(selected_source_lang, selected_target_lang)
-            if model and tokenizer and device:
-                translate_file(filepath, selected_source_lang, selected_target_lang)
-            else:
-                messagebox.showerror("Error", "Failed to load the translation model.")
+    # Function to update the state of the select button
+    def update_button_state():
+        selected_source = [var.get() for var in source_vars if var.get()]
+        selected_target = [var.get() for var in target_vars if var.get()]
+        if selected_source and selected_target and selected_source != selected_target:
+            select_button.config(state='normal', command=select_file)
         else:
-            messagebox.showerror("Error", "Please ensure distinct source and target languages are selected.")
+            select_button.config(state='disabled')
 
-app.mainloop()
+    # Function to handle file selection and translation
+    def select_file():
+        filepath = filedialog.askopenfilename()
+        if filepath:
+            selected_source_lang = next((var.get() for var in source_vars if var.get()), None)
+            selected_target_lang = next((var.get() for var in target_vars if var.get()), None)
+            
+            if selected_source_lang and selected_target_lang and selected_source_lang != selected_target_lang:
+                # Load model and start translation
+                model, tokenizer, device = load_model(selected_source_lang, selected_target_lang)
+                if model and tokenizer and device:
+                    translate_file(app, filepath, selected_source_lang, selected_target_lang)
+                else:
+                    messagebox.showerror("Error", "Failed to load the translation model.")
+            else:
+                messagebox.showerror("Error", "Please ensure distinct source and target languages are selected.")
 
+    app.mainloop()
+
+if __name__ == "__main__":
+    run_app()
