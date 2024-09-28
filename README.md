@@ -1,37 +1,68 @@
-## Text Translation Script
+# Text File Translation App
 
-# Capabilities
-Translates text between languages using Helsinki-NLP's OPUS-MT models from Hugging Face.
-Supports multiple file formats: .txt, .csv, .xlsx.
-Batch processing for handling large volumes of text.
+## Capabilities
+- Translates text files from one language to another using Helsinki-NLP's OPUS-MT models from Hugging Face.
+- Supports multiple file formats: .txt, .csv, .xlsx.
+- Batch processing for handling large volumes of text.
+- Token chunking for efficient translation of lengthy text while avoiding memory issues.
 
-# Benefits
-Flexibility: Works with various languages by changing the OPUS-MT model.
-Privacy: Performs translations locally, ensuring data privacy.
-Convenience: Easy to set up and run, making translations hassle-free.
+## Usage
+- Place your text file in an accessible location.
+- Select the desired source and target languages from the lists in the UI.
+- Select the file you want to translate in the UI file explorer window.
+- The translated file will be saved alongside the original, with the file name appended with the target language.
 
-# Specifications
-Language Support: Dependent on available Helsinki-NLP/OPUS-MT models.
-File Format Support: Text (.txt), Comma-Separated Values (.csv), and Excel (.xlsx).
-Dependencies: Python, pandas, torch, transformers, tqdm, openpyxl, pyinstaller.
+## Benefits
+- Flexibility: Works with multiple languages.
+- Privacy: Performs translations locally and offline, ensuring data privacy.
+- Convenience: Easy to set up and run, making translations hassle-free.
 
-# Installation
-Ensure Python is installed, then run:
-pip install pandas torch transformers tqdm openpyxl sentencepiece sacremoses
+## Specifications
+- Language Support: Dependent on available Helsinki-NLP/OPUS-MT models.
+- File Format Support: Text (.txt), Comma-Separated Values (.csv), and Excel (.xlsx).
+- Dependencies: Python, pandas, torch, transformers, tqdm, openpyxl, pyinstaller.
 
-# Usage
-Place your file in an accessible location.
-Set MODEL_NAME in the script to your desired OPUS-MT model (e.g., "Helsinki-NLP/opus-mt-en-es").
-Update FILE_NAME in the script to point to your file.
-Execute the script.
-The translated file will be saved alongside the original, marked with the target language.
+## Installation & Setup
+- Ensure Python 3.11+ is installed, then:
+- Clone the github repo from: https://github.com/thefilesareinthecomputer/offline_file_translation
+- Set up a virtual environment and install the required dependencies:
+```bash
+git clone {REPO_URL} {REPO_FOLDER}
 
-# Language Customization
-Change MODEL_NAME to the desired Helsinki-NLP/OPUS-MT model for your specific language pair. Visit Hugging Face for a list of available models.
+cd {REPO_FOLDER}
 
-# Comparison with Google Translate
-Offline Capability: Unlike Google Translate, this script does not require an internet connection.
-Data Privacy: Translations are done locally, offering better privacy.
-Customizability: Easily switch between languages by changing models.
-License
-This script is open-source. Feel free to modify and distribute as needed.
+python3.11 -m venv {VENV_NAME}
+
+source {VENV_NAME}/bin/activate
+ 
+pip install --upgrade pip pip-check-reqs wheel python-dotenv
+
+pip install -r requirements.txt
+
+pip install {ADDITIONAL_PACKAGES}
+
+pip freeze > requirements.txt
+
+echo "{VENV_NAME}/
+_archive/
+_notes/
+_notes.txt
+generated_data/
+venv/
+__pycache__/
+*.pyc
+*/migrations/*
+db.sqlite3
+.env
+staticfiles/" > .gitignore
+
+cat .gitignore
+
+git init
+
+git add .
+
+git commit -m "Initial commit"
+
+optionally, set a remote repository and push the new code to it
+```
